@@ -19,6 +19,7 @@ public class UnrealCombatSystem : ModuleRules
 			"GameplayStateTreeModule",
 			"UMG",
 			"Slate",
+			"NetCore",
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks"
