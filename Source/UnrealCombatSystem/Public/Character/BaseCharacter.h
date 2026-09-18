@@ -5,6 +5,7 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
 #include "BaseAttributeSet.h"
+#include "Input/InputActionConfig.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -15,9 +16,15 @@ class UNREALCOMBATSYSTEM_API ABaseCharacter : public AUnrealCombatSystemCharacte
 	
 public:
 	ABaseCharacter();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputActionConfig> InputActionConfig;
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void PossessedBy(AController* NewController) override;
+
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
@@ -25,4 +32,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UBaseAttributeSet> BaseAttributeSet;
+
+private:
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

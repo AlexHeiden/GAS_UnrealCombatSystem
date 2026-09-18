@@ -1,5 +1,7 @@
 #include "Character/BaseCharacter.h"
 
+#include "EnhancedInputComponent.h"
+
 ABaseCharacter::ABaseCharacter()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
@@ -23,4 +25,31 @@ void ABaseCharacter::PossessedBy(AController* NewController)
 	}
 
 	SetOwner(NewController);
+}
+
+void ABaseCharacter::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+	
+}
+
+void ABaseCharacter::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	
+}
+
+void ABaseCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		for (const FInputActionMapping& ActionMapping : InputActionConfig->InputActions)
+		{
+			EnhancedInputComponent->BindAction(ActionMapping.InputAction, ETriggerEvent::Started, this,
+				&ABaseCharacter::AbilityInputTagPressed, ActionMapping.InputTag);
+			EnhancedInputComponent->BindAction(ActionMapping.InputAction, ETriggerEvent::Completed, this,
+				&ABaseCharacter::AbilityInputTagReleased, ActionMapping.InputTag);
+		}	
+	}
+	
 }
