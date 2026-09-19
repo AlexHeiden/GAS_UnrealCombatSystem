@@ -10,7 +10,4 @@ class UBaseGameplayAbility: public UGameplayAbility
 	
 public:
 	UBaseGameplayAbility();
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-	FGameplayTag AbilityInputTag;
 };

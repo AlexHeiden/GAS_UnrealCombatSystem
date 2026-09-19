@@ -3,7 +3,7 @@
 UGA_AttackLight::UGA_AttackLight()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Light")));
-	ActivationBlockedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Light")));
+	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Light")));
 }
 
 void UGA_AttackLight::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -27,8 +27,4 @@ bool UGA_AttackLight::CanActivateAbility(const FGameplayAbilitySpecHandle Handle
 	};
 
 	return true;
-}
-
-void UGA_AttackLight::EndAttackLight()
-{
 }

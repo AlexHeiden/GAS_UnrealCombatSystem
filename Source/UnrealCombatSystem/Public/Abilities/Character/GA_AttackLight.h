@@ -22,7 +22,4 @@ protected:
 		const FGameplayTagContainer* SourceTags = nullptr,
 		const FGameplayTagContainer* TargetTags = nullptr,
 		FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
-
-	UFUNCTION(BlueprintCallable, Category = "Ability")
-	void EndAttackLight();
 };
