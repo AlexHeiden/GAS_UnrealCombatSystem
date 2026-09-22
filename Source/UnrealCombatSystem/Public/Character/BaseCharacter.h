@@ -4,8 +4,9 @@
 #include "UnrealCombatSystemCharacter.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
-#include "AttributeSets/BaseAttributeSet.h"
+#include "AttributeSets/AttackAttributeSet.h"
 #include "AttributeSets/HealthAttributeSet.h"
+#include "AttributeSets/StaminaAttributeSet.h"
 #include "Input/InputActionConfig.h"
 #include "BaseCharacter.generated.h"
 
@@ -36,11 +37,13 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
-	TObjectPtr<UBaseAttributeSet> BaseAttributeSet;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
 	TObjectPtr<UHealthAttributeSet> HealthAttributeSet;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
+	TObjectPtr<UStaminaAttributeSet> StaminaAttributeSet;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")
+	TObjectPtr<UAttackAttributeSet> AttackAttributeSet;
 
 	void GiveDefaultAbilities();
 

@@ -1,14 +1,16 @@
 #include "Character/BaseCharacter.h"
 
 #include "EnhancedInputComponent.h"
+#include "AttributeSets/StaminaAttributeSet.h"
 
 ABaseCharacter::ABaseCharacter()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
-
-	BaseAttributeSet = CreateDefaultSubobject<UBaseAttributeSet>(TEXT("BaseAttributeSet"));
+	
 	HealthAttributeSet = CreateDefaultSubobject<UHealthAttributeSet>(TEXT("HealthAttributeSet"));
+	StaminaAttributeSet = CreateDefaultSubobject<UStaminaAttributeSet>(TEXT("StaminaAttributeSet"));
+	AttackAttributeSet = CreateDefaultSubobject<UAttackAttributeSet>(TEXT("AttackAttributeSet"));
 }
 
 UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
