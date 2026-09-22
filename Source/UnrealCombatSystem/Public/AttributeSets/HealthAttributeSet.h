@@ -27,6 +27,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health", ReplicatedUsing=OnRep_Defense)
 	FGameplayAttributeData Defense;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData Damage;
+
 	UFUNCTION()
 	virtual void OnRep_Health(const FGameplayAttributeData& OldHealth);
 	UFUNCTION()
@@ -39,4 +42,5 @@ public:
 	ATTRIBUTE_ACCESSORS(UHealthAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UHealthAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UHealthAttributeSet, Defense);
+	ATTRIBUTE_ACCESSORS(UHealthAttributeSet, Damage);
 };
