@@ -8,6 +8,7 @@ ABaseCharacter::ABaseCharacter()
 	AbilitySystemComponent->SetIsReplicated(true);
 
 	BaseAttributeSet = CreateDefaultSubobject<UBaseAttributeSet>(TEXT("BaseAttributeSet"));
+	HealthAttributeSet = CreateDefaultSubobject<UHealthAttributeSet>(TEXT("HealthAttributeSet"));
 }
 
 UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
@@ -92,5 +93,4 @@ void ABaseCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 				&ABaseCharacter::AbilityInputTagReleased, ActionMapping.InputTag);
 		}	
 	}
-	
 }
