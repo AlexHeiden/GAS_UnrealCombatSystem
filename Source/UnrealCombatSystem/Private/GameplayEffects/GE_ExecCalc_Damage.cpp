@@ -8,11 +8,11 @@ UGE_ExecCalc_Damage::UGE_ExecCalc_Damage()
 	AttackPowerDef = FGameplayEffectAttributeCaptureDefinition(
 		UAttackAttributeSet::GetAttackPowerAttribute(),
 		EGameplayEffectAttributeCaptureSource::Source,
-		true);
+		false);
 	DefenseDef = FGameplayEffectAttributeCaptureDefinition(
 		UHealthAttributeSet::GetDefenseAttribute(),
 		EGameplayEffectAttributeCaptureSource::Target,
-		true);
+		false);
 
 	RelevantAttributesToCapture.Add(AttackPowerDef);
 	RelevantAttributesToCapture.Add(DefenseDef);
