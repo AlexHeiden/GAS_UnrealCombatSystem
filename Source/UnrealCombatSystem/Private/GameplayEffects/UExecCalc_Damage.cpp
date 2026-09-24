@@ -1,9 +1,9 @@
-﻿#include "GameplayEffects/GE_ExecCalc_Damage.h"
+﻿#include "GameplayEffects/UExecCalc_Damage.h"
 
 #include "AttributeSets/AttackAttributeSet.h"
 #include "AttributeSets/HealthAttributeSet.h"
 
-UGE_ExecCalc_Damage::UGE_ExecCalc_Damage()
+UExecCalc_Damage::UExecCalc_Damage()
 {
 	AttackPowerDef = FGameplayEffectAttributeCaptureDefinition(
 		UAttackAttributeSet::GetAttackPowerAttribute(),
@@ -18,7 +18,7 @@ UGE_ExecCalc_Damage::UGE_ExecCalc_Damage()
 	RelevantAttributesToCapture.Add(DefenseDef);
 }
 
-void UGE_ExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
+void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
