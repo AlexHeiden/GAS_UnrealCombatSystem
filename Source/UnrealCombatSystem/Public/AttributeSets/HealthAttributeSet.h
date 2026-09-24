@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
 #include "AttributeSet.h"
+#include "GameplayEffectExtension.h"
 #include "UObject/CoreNet.h"
 #include "HealthAttributeSet.generated.h"
 
@@ -38,6 +39,7 @@ public:
 	virtual void OnRep_Defense(const FGameplayAttributeData& OldDefense);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	
 	ATTRIBUTE_ACCESSORS(UHealthAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UHealthAttributeSet, MaxHealth);

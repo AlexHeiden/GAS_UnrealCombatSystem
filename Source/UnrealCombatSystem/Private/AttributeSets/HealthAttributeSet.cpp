@@ -32,3 +32,16 @@ void UHealthAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	DOREPLIFETIME_CONDITION_NOTIFY(UHealthAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UHealthAttributeSet, Defense, COND_OwnerOnly, REPNOTIFY_Always);
 }
+
+void UHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+
+	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+	{
+		float Damage = FMath::Max(GetDamage(), 0.f);
+		SetHealth(FMath::Clamp(
+			GetHealth() - Damage, 0.f, GetMaxHealth()));
+		SetDamage(0.f);
+	}
+}
