@@ -40,6 +40,8 @@ void UHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute
 	if (Attribute == GetHealthAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
+		UE_LOG(LogTemp, Display, TEXT("%s Health: %f / MaxHealth: %f"),
+		*GetName(), GetHealth(), GetMaxHealth());
 	}
 }
 
