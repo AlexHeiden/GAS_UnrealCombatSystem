@@ -1,17 +1,20 @@
 ﻿#pragma once
 
 #include "Abilities/BaseGameplayAbility.h"
-#include "GA_AttackLight.generated.h"
+#include "GameplayAbility_AttackLight.generated.h"
 
 UCLASS()
-class UGA_AttackLight: public UBaseGameplayAbility
+class UGameplayAbility_AttackLight: public UBaseGameplayAbility
 {
 	GENERATED_BODY()
 	
 public:
-	UGA_AttackLight();
+	UGameplayAbility_AttackLight();
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
