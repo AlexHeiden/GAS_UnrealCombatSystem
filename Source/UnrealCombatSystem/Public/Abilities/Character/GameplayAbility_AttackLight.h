@@ -14,6 +14,14 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	TObjectPtr<UAnimMontage> AttackLightMontage;
+
+	UFUNCTION()
+	void OnMontageCompleted();
+	UFUNCTION()
+	void OnMontageCancelled();
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,

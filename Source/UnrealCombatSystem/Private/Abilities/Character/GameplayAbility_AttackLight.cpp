@@ -3,11 +3,11 @@
 #include "GameplayEffects/UExecCalc_Damage.h"
 #include "Kismet/GameplayStatics.h"
 #include "NPC/TargetDummy.h"
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 
 UGameplayAbility_AttackLight::UGameplayAbility_AttackLight()
 {
-	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Light")));
-	ActivationOwnedTags.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Attack.Light")));
+
 }
 
 void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -16,9 +16,10 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
+	if (!SourceASC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to commit ability"));
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Source doesn't have ASC"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -29,7 +30,46 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+
+	if (!AttackLightMontage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: AttackLightMontage not set"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 	
+	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to commit ability"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+		this,
+		NAME_None,
+		AttackLightMontage,
+		1.0f,
+		NAME_None,
+		false,
+		1.0f
+	);
+
+	if (!MontageTask)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: MontageTask failed to be created"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	MontageTask->OnCompleted.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCompleted);
+	MontageTask->OnCancelled.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCancelled);
+	MontageTask->OnInterrupted.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCancelled);
+	MontageTask->OnBlendOut.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCancelled);
+
+	MontageTask->ReadyForActivation();
+
+	/*
 	ATargetDummy* TargetDummy = Cast<ATargetDummy>(
 		UGameplayStatics::GetActorOfClass(
 			GetWorld(),
@@ -49,14 +89,6 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
-	if (!SourceASC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Source doesn't have ASC"));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
 	FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
 	ContextHandle.AddSourceObject(this);
 
@@ -70,6 +102,7 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 	
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+	*/
 }
 
 bool UGameplayAbility_AttackLight::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -82,4 +115,14 @@ bool UGameplayAbility_AttackLight::CanActivateAbility(const FGameplayAbilitySpec
 	};
 
 	return true;
+}
+
+void UGameplayAbility_AttackLight::OnMontageCompleted()
+{
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
+}
+
+void UGameplayAbility_AttackLight::OnMontageCancelled()
+{
+	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, true);
 }
