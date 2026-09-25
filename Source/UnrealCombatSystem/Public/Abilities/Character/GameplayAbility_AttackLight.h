@@ -22,6 +22,8 @@ protected:
 	void OnMontageCompleted();
 	UFUNCTION()
 	void OnMontageCancelled();
+	UFUNCTION()
+	void OnHitWindowEventReceived(FGameplayEventData Payload);
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,

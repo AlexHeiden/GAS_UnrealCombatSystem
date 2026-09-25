@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "NPC/TargetDummy.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
 UGameplayAbility_AttackLight::UGameplayAbility_AttackLight()
 {
@@ -15,15 +16,7 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 	const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	UAbilitySystemComponent* SourceASC = ActorInfo->AbilitySystemComponent.Get();
-	if (!SourceASC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Source doesn't have ASC"));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
+	
 	if (!DamageEffectClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: DamageEffectClass not set"));
@@ -45,6 +38,23 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
+	UAbilityTask_WaitGameplayEvent* WaitHitWindowTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		FGameplayTag::RequestGameplayTag(FName("Event.HitWindow.Open")),
+		nullptr,
+		false,
+		false
+	);
+	if (!WaitHitWindowTask)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: WaitHitWindowTask failed to be created"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	WaitHitWindowTask->EventReceived.AddDynamic(this, &UGameplayAbility_AttackLight::OnHitWindowEventReceived);
+	WaitHitWindowTask->ReadyForActivation();
+	
 	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,
@@ -54,7 +64,6 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 		false,
 		1.0f
 	);
-
 	if (!MontageTask)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: MontageTask failed to be created"));
@@ -68,41 +77,6 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 	MontageTask->OnBlendOut.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCancelled);
 
 	MontageTask->ReadyForActivation();
-
-	/*
-	ATargetDummy* TargetDummy = Cast<ATargetDummy>(
-		UGameplayStatics::GetActorOfClass(
-			GetWorld(),
-			ATargetDummy::StaticClass()));
-	if (!TargetDummy)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to find target"));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
-	UAbilitySystemComponent* TargetASC = TargetDummy->GetAbilitySystemComponent();
-	if (!TargetASC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Target doesn't have ASC"));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
-	FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
-	ContextHandle.AddSourceObject(this);
-
-	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(
-		DamageEffectClass, GetAbilityLevel(), ContextHandle);
-	if (!SpecHandle.IsValid())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to create GameplayEffectSpec"));
-	}
-
-	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
-	
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-	*/
 }
 
 bool UGameplayAbility_AttackLight::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -125,4 +99,43 @@ void UGameplayAbility_AttackLight::OnMontageCompleted()
 void UGameplayAbility_AttackLight::OnMontageCancelled()
 {
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, true);
+}
+
+void UGameplayAbility_AttackLight::OnHitWindowEventReceived(FGameplayEventData Payload)
+{
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to receive ASC from source"));
+		return;
+	}
+	
+	ATargetDummy* TargetDummy = Cast<ATargetDummy>(
+		UGameplayStatics::GetActorOfClass(
+			GetWorld(),
+			ATargetDummy::StaticClass()));
+	if (!TargetDummy)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to find target"));
+		return;
+	}
+	
+	UAbilitySystemComponent* TargetASC = TargetDummy->GetAbilitySystemComponent();
+	if (!TargetASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Target doesn't have ASC"));
+		return;
+	}
+
+	FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(
+		DamageEffectClass, GetAbilityLevel(), ContextHandle);
+	if (!SpecHandle.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to create GameplayEffectSpec"));
+	}
+
+	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
 }
