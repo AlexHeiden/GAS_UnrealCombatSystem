@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Abilities/BaseGameplayAbility.h"
+#include "Character/Components/MeleeTraceComponent.h"
 #include "GameplayAbility_AttackLight.generated.h"
 
 UCLASS()
@@ -22,17 +23,26 @@ protected:
 	void OnMontageCompleted();
 	UFUNCTION()
 	void OnMontageCancelled();
-	UFUNCTION()
-	void OnHitWindowEventReceived(FGameplayEventData Payload);
 	
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		const FGameplayEventData* TriggerEventData) override;
 
-	virtual bool CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayTagContainer* SourceTags = nullptr,
-		const FGameplayTagContainer* TargetTags = nullptr,
-		FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
+
+private:
+	FGameplayEffectSpecHandle DamageSpecHandle;
+	TWeakObjectPtr<UMeleeTraceComponent> ActiveTrace;
+
+	UFUNCTION()
+	void OnHitWindowOpen(FGameplayEventData Payload);
+	UFUNCTION()
+	void OnHitWindowClose(FGameplayEventData Payload);
+	UFUNCTION()
+	void OnTraceHit(AActor* HitActor, const FHitResult& HitResult);
+	
+	void StartHitTrace();
+	void StopHitTrace();
 };

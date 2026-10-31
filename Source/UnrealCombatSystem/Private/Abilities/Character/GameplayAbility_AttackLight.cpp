@@ -1,14 +1,15 @@
 ﻿#include "Abilities/Character/GameplayAbility_AttackLight.h"
 
 #include "GameplayEffects/UExecCalc_Damage.h"
-#include "Kismet/GameplayStatics.h"
-#include "NPC/TargetDummy.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "AttributeSets/AttackAttributeSet.h"
+#include "AbilitySystemGlobals.h"
+#include "Character/BaseCharacter.h"
 
 UGameplayAbility_AttackLight::UGameplayAbility_AttackLight()
 {
-
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
 void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
@@ -38,22 +39,39 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	UAbilityTask_WaitGameplayEvent* WaitHitWindowTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+	UAbilityTask_WaitGameplayEvent* WaitHitWindowOpenTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
 		FGameplayTag::RequestGameplayTag(FName("Event.HitWindow.Open")),
 		nullptr,
 		false,
 		false
 	);
-	if (!WaitHitWindowTask)
+	if (!WaitHitWindowOpenTask)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: WaitHitWindowTask failed to be created"));
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: WaitHitWindowOpenTask failed to be created"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
-	WaitHitWindowTask->EventReceived.AddDynamic(this, &UGameplayAbility_AttackLight::OnHitWindowEventReceived);
-	WaitHitWindowTask->ReadyForActivation();
+	WaitHitWindowOpenTask->EventReceived.AddDynamic(this, &UGameplayAbility_AttackLight::OnHitWindowOpen);
+	WaitHitWindowOpenTask->ReadyForActivation();
+
+	UAbilityTask_WaitGameplayEvent* WaitHitWindowCloseTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		FGameplayTag::RequestGameplayTag(FName("Event.HitWindow.Close")),
+		nullptr,
+		false,
+		false
+		);
+	if (!WaitHitWindowCloseTask)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: WaitHitWindowCloseTask failed to be created"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	WaitHitWindowCloseTask->EventReceived.AddDynamic(this, &UGameplayAbility_AttackLight::OnHitWindowClose);
+	WaitHitWindowCloseTask->ReadyForActivation();
 	
 	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
@@ -74,21 +92,17 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 	MontageTask->OnCompleted.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCompleted);
 	MontageTask->OnCancelled.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCancelled);
 	MontageTask->OnInterrupted.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCancelled);
-	MontageTask->OnBlendOut.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCancelled);
+	MontageTask->OnBlendOut.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCompleted);
 
 	MontageTask->ReadyForActivation();
 }
 
-bool UGameplayAbility_AttackLight::CanActivateAbility(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags,
-	const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
+void UGameplayAbility_AttackLight::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
 {
-	if (!Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags))
-	{
-		return false;
-	};
-
-	return true;
+	StopHitTrace();
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
 void UGameplayAbility_AttackLight::OnMontageCompleted()
@@ -101,41 +115,91 @@ void UGameplayAbility_AttackLight::OnMontageCancelled()
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, true);
 }
 
-void UGameplayAbility_AttackLight::OnHitWindowEventReceived(FGameplayEventData Payload)
+void UGameplayAbility_AttackLight::OnHitWindowOpen(FGameplayEventData Payload)
 {
+	StartHitTrace();
+}
+
+void UGameplayAbility_AttackLight::OnHitWindowClose(FGameplayEventData Payload)
+{
+	StopHitTrace();
+}
+
+void UGameplayAbility_AttackLight::StartHitTrace()
+{
+	StopHitTrace();
+
+	ABaseCharacter* BaseCharacter = Cast<ABaseCharacter>(GetAvatarActorFromActorInfo());
+	if (!BaseCharacter)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to retrieve BaseCharacter"));
+		return;
+	}
+	
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
 	if (!SourceASC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to receive ASC from source"));
-		return;
-	}
-	
-	ATargetDummy* TargetDummy = Cast<ATargetDummy>(
-		UGameplayStatics::GetActorOfClass(
-			GetWorld(),
-			ATargetDummy::StaticClass()));
-	if (!TargetDummy)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to find target"));
-		return;
-	}
-	
-	UAbilitySystemComponent* TargetASC = TargetDummy->GetAbilitySystemComponent();
-	if (!TargetASC)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Target doesn't have ASC"));
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to retrieve ASC from source"));
 		return;
 	}
 
+	UMeleeTraceComponent* TraceComponent = BaseCharacter->GetRightFistTraceComponent();
+	if (!TraceComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to retrieve RightFistTrace MeleeComponent from source"));
+		return;
+	}
+	
 	FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
 	ContextHandle.AddSourceObject(this);
-
-	FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(
+	DamageSpecHandle = SourceASC->MakeOutgoingSpec(
 		DamageEffectClass, GetAbilityLevel(), ContextHandle);
-	if (!SpecHandle.IsValid())
+	if (!DamageSpecHandle.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to create GameplayEffectSpec"));
+		return;
 	}
 
-	SourceASC->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+	ActiveTrace = TraceComponent;
+	TraceComponent->OnTraceHit.AddDynamic(this, &UGameplayAbility_AttackLight::OnTraceHit);
+
+	if (!TraceComponent->StartHitTrace())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: hit trace failed to start"));
+		StopHitTrace();
+	}
+}
+
+void UGameplayAbility_AttackLight::StopHitTrace()
+{
+	if (UMeleeTraceComponent* TraceComponent = ActiveTrace.Get())
+	{
+		TraceComponent->StopHitTrace();
+		TraceComponent->OnTraceHit.RemoveDynamic(this, &UGameplayAbility_AttackLight::OnTraceHit);
+	}
+	ActiveTrace.Reset();
+	DamageSpecHandle.Clear();
+}
+
+void UGameplayAbility_AttackLight::OnTraceHit(AActor* HitActor, const FHitResult& HitResult)
+{
+	if (!HasAuthority(&CurrentActivationInfo))
+	{
+		return;
+	}
+	
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC  || !DamageSpecHandle.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: missing source ASC or damage spec"));
+		return;
+	}
+	
+	UAbilitySystemComponent* TargetASC = UAbilitySystemGlobals::GetAbilitySystemComponentFromActor(HitActor);
+	if (!TargetASC)
+	{
+		return;
+	}
+
+	SourceASC->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data.Get(), TargetASC);
 }
