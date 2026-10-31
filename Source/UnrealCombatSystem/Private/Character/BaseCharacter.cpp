@@ -11,6 +11,9 @@ ABaseCharacter::ABaseCharacter()
 	HealthAttributeSet = CreateDefaultSubobject<UHealthAttributeSet>(TEXT("HealthAttributeSet"));
 	StaminaAttributeSet = CreateDefaultSubobject<UStaminaAttributeSet>(TEXT("StaminaAttributeSet"));
 	AttackAttributeSet = CreateDefaultSubobject<UAttackAttributeSet>(TEXT("AttackAttributeSet"));
+
+	RightFistTraceComponent = CreateDefaultSubobject<UMeleeTraceComponent>(TEXT("RightFistTraceComponent"));
+	RightFistTraceComponent->SetTraceMesh(GetMesh());
 }
 
 UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
@@ -50,6 +53,11 @@ void ABaseCharacter::AbilityInputTagPressed(FGameplayTag InputTag)
 void ABaseCharacter::AbilityInputTagReleased(FGameplayTag InputTag)
 {
 	
+}
+
+UMeleeTraceComponent* ABaseCharacter::GetRightFistTraceComponent() const
+{
+	return RightFistTraceComponent;
 }
 
 void ABaseCharacter::GiveDefaultAbilities()
