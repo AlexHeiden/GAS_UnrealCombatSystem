@@ -6,7 +6,7 @@
 #include "TargetDummy.generated.h"
 
 UCLASS()
-class ATargetDummy: public AActor, public IAbilitySystemInterface
+class ATargetDummy: public APawn, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 public:
