@@ -1,5 +1,7 @@
 ﻿#pragma once
+
 #include "Kismet/KismetSystemLibrary.h"
+#include "MeleeTraceComponent.generated.h"
 
 UCLASS(ClassGroup=(Combat), meta=(BlueprintSpawnableComponent))
 class UMeleeTraceComponent: public UActorComponent
@@ -17,7 +19,7 @@ public:
 	UPROPERTY(EditAnywhere, Category="Trace")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	UPROPERTY(EditAnywhere, Category="Trace")
-	EDrawDebugTrace::Type DebugTrace = EDrawDebugTrace::None;
+	TEnumAsByte<EDrawDebugTrace::Type> DebugTrace = EDrawDebugTrace::None;
 
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTraceHit, AActor*, HitActor, const FHitResult&, HitResult);
 
@@ -25,7 +27,7 @@ public:
 	FOnTraceHit OnTraceHit;
 
 	void SetTraceMesh(USceneComponent* InMesh);
-	void StartHitTrace();
+	bool StartHitTrace();
 	void StopHitTrace();
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

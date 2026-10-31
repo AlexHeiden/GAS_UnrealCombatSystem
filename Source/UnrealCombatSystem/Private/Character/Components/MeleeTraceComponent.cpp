@@ -17,13 +17,13 @@ void UMeleeTraceComponent::SetTraceMesh(USceneComponent* InMesh)
 	}
 }
 
-void UMeleeTraceComponent::StartHitTrace()
+bool UMeleeTraceComponent::StartHitTrace()
 {
 	USceneComponent* Mesh = TraceMesh.Get();
 	if (!Mesh)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("MeleeTraceComponent on %s: TraceMesh is nullptr"), *GetNameSafe(GetOwner()));
-		return;
+		return false;
 	}
 
 	if (!Mesh->DoesSocketExist(StartSocket) || !Mesh->DoesSocketExist(EndSocket))
@@ -33,7 +33,7 @@ void UMeleeTraceComponent::StartHitTrace()
 			*StartSocket.ToString(),
 			*EndSocket.ToString(),
 			*GetNameSafe(Mesh));
-		return;
+		return false;
 	}
 
 	HitActors.Reset();
@@ -45,6 +45,7 @@ void UMeleeTraceComponent::StartHitTrace()
 	IgnoredActors = Ignore;
 	
 	SetComponentTickEnabled(true);
+	return true;
 }
 
 void UMeleeTraceComponent::StopHitTrace()
