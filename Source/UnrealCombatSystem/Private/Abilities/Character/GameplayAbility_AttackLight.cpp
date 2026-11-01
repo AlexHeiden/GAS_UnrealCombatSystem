@@ -181,7 +181,7 @@ void UGameplayAbility_AttackLight::StopHitTrace()
 	DamageSpecHandle.Clear();
 }
 
-void UGameplayAbility_AttackLight::OnTraceHit(AActor* HitActor, const FHitResult& HitResult)
+void UGameplayAbility_AttackLight::OnTraceHit(const AActor* HitActor, const FHitResult& HitResult)
 {
 	if (!HasAuthority(&CurrentActivationInfo))
 	{

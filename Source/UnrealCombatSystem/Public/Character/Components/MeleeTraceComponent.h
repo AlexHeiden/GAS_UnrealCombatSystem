@@ -21,7 +21,7 @@ public:
 	UPROPERTY(EditAnywhere, Category="Trace")
 	TEnumAsByte<EDrawDebugTrace::Type> DebugTrace = EDrawDebugTrace::None;
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTraceHit, AActor*, HitActor, const FHitResult&, HitResult);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTraceHit, const AActor*, HitActor, const FHitResult&, HitResult);
 
 	UPROPERTY(BlueprintAssignable, Category="Trace")
 	FOnTraceHit OnTraceHit;

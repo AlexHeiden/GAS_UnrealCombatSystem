@@ -41,7 +41,7 @@ private:
 	UFUNCTION()
 	void OnHitWindowClose(FGameplayEventData Payload);
 	UFUNCTION()
-	void OnTraceHit(AActor* HitActor, const FHitResult& HitResult);
+	void OnTraceHit(const AActor* HitActor, const FHitResult& HitResult);
 	
 	void StartHitTrace();
 	void StopHitTrace();
