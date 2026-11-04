@@ -105,6 +105,25 @@ void UGameplayAbility_AttackLight::EndAbility(const FGameplayAbilitySpecHandle H
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
+bool UGameplayAbility_AttackLight::CheckCost(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags))
+	{
+		return false;
+	}
+
+	const float Cost = StaminaCost.GetValueAtLevel(GetAbilityLevel());
+
+	const UStaminaAttributeSet* StaminaAttributeSet = ActorInfo->AbilitySystemComponent->GetSet<UStaminaAttributeSet>();
+	if (!StaminaAttributeSet)
+	{
+		return false;
+	}
+
+	return StaminaAttributeSet->GetStamina() >= Cost;
+}
+
 void UGameplayAbility_AttackLight::OnMontageCompleted()
 {
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);

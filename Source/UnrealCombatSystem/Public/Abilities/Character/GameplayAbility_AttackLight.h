@@ -19,6 +19,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TObjectPtr<UAnimMontage> AttackLightMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Costs")
+	FScalableFloat StaminaCost;
+	
 	UFUNCTION()
 	void OnMontageCompleted();
 	UFUNCTION()
@@ -32,6 +35,8 @@ protected:
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
+	virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+		FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 private:
 	FGameplayEffectSpecHandle DamageSpecHandle;
 	TWeakObjectPtr<UMeleeTraceComponent> ActiveTrace;
