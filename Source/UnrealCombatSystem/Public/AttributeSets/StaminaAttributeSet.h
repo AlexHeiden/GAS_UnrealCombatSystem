@@ -25,6 +25,7 @@ public:
 	virtual void OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 
 	ATTRIBUTE_ACCESSORS(UStaminaAttributeSet, Stamina);
 	ATTRIBUTE_ACCESSORS(UStaminaAttributeSet, MaxStamina);
