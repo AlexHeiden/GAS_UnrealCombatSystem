@@ -27,6 +27,9 @@ public:
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
+	TArray<TSubclassOf<UGameplayEffect>> DefaultEffects;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
 	TMap<FGameplayTag, FGameplayTag> InputTagToAbilityTag;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
@@ -52,7 +55,10 @@ protected:
 	TObjectPtr<UAttackAttributeSet> AttackAttributeSet;
 
 	void GiveDefaultAbilities();
+	void ApplyDefaultEffects();
 
 private:
+	bool bDefaultEffectsApplied = false;
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

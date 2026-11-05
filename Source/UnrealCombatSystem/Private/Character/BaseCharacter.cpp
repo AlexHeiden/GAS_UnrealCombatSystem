@@ -29,6 +29,7 @@ void ABaseCharacter::PossessedBy(AController* NewController)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 		GiveDefaultAbilities();
+		ApplyDefaultEffects();
 	}
 }
 
@@ -75,6 +76,32 @@ void ABaseCharacter::GiveDefaultAbilities()
 				FGameplayAbilitySpec(AbilityClass, 1, INDEX_NONE, this));
 		}
 	}
+}
+
+void ABaseCharacter::ApplyDefaultEffects()
+{
+	if (!HasAuthority() || !AbilitySystemComponent || bDefaultEffectsApplied)
+	{
+		return;
+	}
+
+	for (TSubclassOf<UGameplayEffect> EffectClass: DefaultEffects)
+	{
+		if (!EffectClass)
+		{
+			continue;
+		}
+
+		FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
+		Context.AddSourceObject(this);
+		FGameplayEffectSpecHandle Spec = AbilitySystemComponent->MakeOutgoingSpec(EffectClass, 1.f, Context);
+		if (Spec.IsValid())
+		{
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+		}
+	}
+
+	bDefaultEffectsApplied = true;
 }
 
 void ABaseCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
