@@ -80,8 +80,7 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 		1.0f,
 		NAME_None,
 		false,
-		1.0f
-	);
+		1.0f);
 	if (!MontageTask)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: MontageTask failed to be created"));
