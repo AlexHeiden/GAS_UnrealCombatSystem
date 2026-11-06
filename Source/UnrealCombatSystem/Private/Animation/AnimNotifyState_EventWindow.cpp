@@ -13,6 +13,12 @@ void UAnimNotifyState_EventWindow::NotifyBegin(USkeletalMeshComponent* MeshComp,
 	{
 		return;	
 	}
+
+	if (!OpenEventTag.IsValid() || !CloseEventTag.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: OpenEventTag or CloseEventTag is not set"), *GetClass()->GetName());
+		return;
+	}
 	
 	FGameplayEventData EventData;
 	EventData.EventTag = OpenEventTag;
@@ -29,6 +35,12 @@ void UAnimNotifyState_EventWindow::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 	if (!Owner)
 	{
 		return;	
+	}
+
+	if (!OpenEventTag.IsValid() || !CloseEventTag.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: OpenEventTag or CloseEventTag is not set"), *GetClass()->GetName());
+		return;
 	}
 	
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Owner, CloseEventTag, FGameplayEventData());
