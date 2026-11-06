@@ -1,6 +1,7 @@
 ﻿#include "Abilities/Character/GameplayAbility_Dodge.h"
 
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AttributeSets/StaminaAttributeSet.h"
 #include "GameFramework/Character.h"
 
@@ -60,6 +61,38 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		Character->SetActorRotation(FRotator(0.f, Input.Rotation().Yaw, 0.f));
 	}
 
+	UAbilityTask_WaitGameplayEvent* WaitIFramesOpenWindowTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		OpenIFramesTag,
+		nullptr,
+		false,
+		false);
+	if (!WaitIFramesOpenWindowTask)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: WaitIFramesOpenWindowTask failed to be created"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	WaitIFramesOpenWindowTask->EventReceived.AddDynamic(this, &UGameplayAbility_Dodge::OnIFramesOpen);
+	WaitIFramesOpenWindowTask->ReadyForActivation();
+
+	UAbilityTask_WaitGameplayEvent* WaitIframesCloseWindowTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+		this,
+		CloseIFramesTag,
+		nullptr,
+		false,
+		false);
+	if (!WaitIframesCloseWindowTask)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: WaitIFramesCloseWindowTask failed to be created"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	WaitIframesCloseWindowTask->EventReceived.AddDynamic(this, &UGameplayAbility_Dodge::OnIFramesClose);
+	WaitIframesCloseWindowTask->ReadyForActivation();
+		
 	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,
@@ -83,8 +116,29 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	MontageTask->ReadyForActivation();
 }
 
+void UGameplayAbility_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
+	bool bReplicateEndAbility, bool bWasCancelled)
+{
+	if (bIsInvulnerable)
+	{
+		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+		if (!SourceASC)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: Failed to retrieve ASC from source"));
+		}
+		else
+		{
+			SourceASC->RemoveLooseGameplayTag(InvulnerabilityTag);
+			bIsInvulnerable = false;
+		}
+	}
+	
+	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
 bool UGameplayAbility_Dodge::CheckCost(const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
+                                       const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
 {
 	if (!Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags))
 	{
@@ -100,4 +154,40 @@ bool UGameplayAbility_Dodge::CheckCost(const FGameplayAbilitySpecHandle Handle,
 	}
 
 	return StaminaAttributeSet->GetStamina() >= Cost;
+}
+
+void UGameplayAbility_Dodge::OnIFramesOpen(FGameplayEventData Payload)
+{
+	if (bIsInvulnerable)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: Failed to retrieve ASC from source"));
+		return;
+	}
+
+	SourceASC->AddLooseGameplayTag(InvulnerabilityTag);
+	bIsInvulnerable = true;
+}
+
+void UGameplayAbility_Dodge::OnIFramesClose(FGameplayEventData Payload)
+{
+	if (!bIsInvulnerable)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
+	if (!SourceASC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: Failed to retrieve ASC from source"));
+		return;
+	}
+
+	SourceASC->RemoveLooseGameplayTag(InvulnerabilityTag);
+	bIsInvulnerable = false;
 }

@@ -19,10 +19,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TObjectPtr<UAnimMontage> AttackLightMontage;
 	
-	UPROPERTY(EditAnywhere, Category = "Animation")
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	FGameplayTag OpenHitWindowTag = FGameplayTag::RequestGameplayTag(FName("Event.HitWindow.Open"));
 
-	UPROPERTY(EditAnywhere, Category = "Animation")
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	FGameplayTag CloseHitWindowTag = FGameplayTag::RequestGameplayTag(FName("Event.HitWindow.Close"));; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Costs")
