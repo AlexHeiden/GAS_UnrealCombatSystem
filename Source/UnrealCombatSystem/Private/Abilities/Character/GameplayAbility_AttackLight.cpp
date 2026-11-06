@@ -31,6 +31,13 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+
+	if (!OpenHitWindowTag.IsValid() || !CloseHitWindowTag.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: OpenEventTag or CloseEventTag is not set"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -41,7 +48,7 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 
 	UAbilityTask_WaitGameplayEvent* WaitHitWindowOpenTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
-		FGameplayTag::RequestGameplayTag(FName("Event.HitWindow.Open")),
+		OpenHitWindowTag,
 		nullptr,
 		false,
 		false
@@ -58,7 +65,7 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 
 	UAbilityTask_WaitGameplayEvent* WaitHitWindowCloseTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
-		FGameplayTag::RequestGameplayTag(FName("Event.HitWindow.Close")),
+		CloseHitWindowTag,
 		nullptr,
 		false,
 		false
