@@ -12,6 +12,12 @@ public:
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TObjectPtr<UAnimMontage> DodgeMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	FGameplayTag OpenIFramesTag = FGameplayTag::RequestGameplayTag(FName("Event.IFrames.Open"));
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	FGameplayTag CloseIFramesTag = FGameplayTag::RequestGameplayTag(FName("Event.IFrames.Close"));; 
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Costs")
 	FScalableFloat StaminaCost;

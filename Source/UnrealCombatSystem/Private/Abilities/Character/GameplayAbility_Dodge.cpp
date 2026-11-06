@@ -32,6 +32,13 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
+	if (!OpenIFramesTag.IsValid() || !CloseIFramesTag.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: OpenIFramesTag or OpenIFramesTag is not set"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
 	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
 	if (!Character)
 	{

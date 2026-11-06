@@ -34,7 +34,7 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 
 	if (!OpenHitWindowTag.IsValid() || !CloseHitWindowTag.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: OpenEventTag or CloseEventTag is not set"));
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: OpenHitWindowTag or CloseHitWindowTag is not set"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
