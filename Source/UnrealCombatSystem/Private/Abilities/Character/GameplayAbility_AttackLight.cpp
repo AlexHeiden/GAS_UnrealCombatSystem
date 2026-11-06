@@ -1,6 +1,6 @@
 ﻿#include "Abilities/Character/GameplayAbility_AttackLight.h"
 
-#include "GameplayEffects/UExecCalc_Damage.h"
+#include "GameplayEffects/ExecCalc_Damage.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AttributeSets/AttackAttributeSet.h"

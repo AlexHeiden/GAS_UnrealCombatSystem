@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "UAnimNotifyState_HitWindow.generated.h"
+#include "AnimNotifyState_HitWindow.generated.h"
 
 
 UCLASS()

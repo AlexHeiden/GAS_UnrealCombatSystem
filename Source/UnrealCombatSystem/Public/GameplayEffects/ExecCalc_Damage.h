@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "GameplayEffectExecutionCalculation.h"
-#include "UExecCalc_Damage.generated.h"
+#include "ExecCalc_Damage.generated.h"
 
 
 UCLASS()

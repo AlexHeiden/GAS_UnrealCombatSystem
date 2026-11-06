@@ -1,4 +1,4 @@
-﻿#include "GameplayEffects/UExecCalc_Damage.h"
+﻿#include "GameplayEffects/ExecCalc_Damage.h"
 
 #include "AttributeSets/AttackAttributeSet.h"
 #include "AttributeSets/HealthAttributeSet.h"
