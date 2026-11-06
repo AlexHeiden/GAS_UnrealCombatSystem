@@ -144,25 +144,6 @@ void UGameplayAbility_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-bool UGameplayAbility_Dodge::CheckCost(const FGameplayAbilitySpecHandle Handle,
-                                       const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
-{
-	if (!Super::CheckCost(Handle, ActorInfo, OptionalRelevantTags))
-	{
-		return false;
-	}
-
-	const float Cost = StaminaCost.GetValueAtLevel(GetAbilityLevel());
-
-	const UStaminaAttributeSet* StaminaAttributeSet = ActorInfo->AbilitySystemComponent->GetSet<UStaminaAttributeSet>();
-	if (!StaminaAttributeSet)
-	{
-		return false;
-	}
-
-	return StaminaAttributeSet->GetStamina() >= Cost;
-}
-
 void UGameplayAbility_Dodge::OnIFramesOpen(FGameplayEventData Payload)
 {
 	if (bIsInvulnerable)
