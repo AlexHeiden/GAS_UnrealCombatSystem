@@ -35,7 +35,14 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 
 	if (!OpenIFramesTag.IsValid() || !CloseIFramesTag.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: OpenIFramesTag or OpenIFramesTag is not set"));
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: OpenIFramesTag or CloseIFramesTag is not set"));
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
+	if (!InvulnerabilityTag.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: InvulnerabilityTag is not set"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}

@@ -14,13 +14,13 @@ protected:
 	TObjectPtr<UAnimMontage> DodgeMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	FGameplayTag OpenIFramesTag = FGameplayTag::RequestGameplayTag(FName("Event.IFrames.Open"));
+	FGameplayTag OpenIFramesTag;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	FGameplayTag CloseIFramesTag = FGameplayTag::RequestGameplayTag(FName("Event.IFrames.Close")); 
+	FGameplayTag CloseIFramesTag; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
-	FGameplayTag InvulnerabilityTag = FGameplayTag::RequestGameplayTag(FName("State.Invulnerable"));
+	FGameplayTag InvulnerabilityTag;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Costs")
 	FScalableFloat StaminaCost;

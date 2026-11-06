@@ -20,10 +20,10 @@ protected:
 	TObjectPtr<UAnimMontage> AttackLightMontage;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	FGameplayTag OpenHitWindowTag = FGameplayTag::RequestGameplayTag(FName("Event.HitWindow.Open"));
+	FGameplayTag OpenHitWindowTag;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	FGameplayTag CloseHitWindowTag = FGameplayTag::RequestGameplayTag(FName("Event.HitWindow.Close"));; 
+	FGameplayTag CloseHitWindowTag; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Costs")
 	FScalableFloat StaminaCost;
