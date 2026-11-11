@@ -20,28 +20,28 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 	
 	if (!DamageEffectClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: DamageEffectClass not set"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: DamageEffectClass not set"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
 	if (!AttackMontage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: AttackLightMontage not set"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: AttackLightMontage not set"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
 	if (!OpenHitWindowTag.IsValid() || !CloseHitWindowTag.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: OpenHitWindowTag or CloseHitWindowTag is not set"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: OpenHitWindowTag or CloseHitWindowTag is not set"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to commit ability"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to commit ability"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -55,7 +55,7 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 	);
 	if (!WaitHitWindowOpenTask)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: WaitHitWindowOpenTask failed to be created"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: WaitHitWindowOpenTask failed to be created"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -72,7 +72,7 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 		);
 	if (!WaitHitWindowCloseTask)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: WaitHitWindowCloseTask failed to be created"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: WaitHitWindowCloseTask failed to be created"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -90,7 +90,7 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 		1.0f);
 	if (!MontageTask)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: MontageTask failed to be created"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: MontageTask failed to be created"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -138,21 +138,21 @@ void UGameplayAbility_MeleeAttack::StartHitTrace()
 	ABaseCharacter* BaseCharacter = Cast<ABaseCharacter>(GetAvatarActorFromActorInfo());
 	if (!BaseCharacter)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to retrieve BaseCharacter"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to retrieve BaseCharacter"), *GetClass()->GetName());
 		return;
 	}
 	
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
 	if (!SourceASC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to retrieve ASC from source"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to retrieve ASC from source"), *GetClass()->GetName());
 		return;
 	}
 
 	UMeleeTraceComponent* TraceComponent = BaseCharacter->GetRightFistTraceComponent();
 	if (!TraceComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to retrieve RightFistTrace MeleeComponent from source"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to retrieve RightFistTrace MeleeComponent from source"), *GetClass()->GetName());
 		return;
 	}
 	
@@ -162,7 +162,7 @@ void UGameplayAbility_MeleeAttack::StartHitTrace()
 		DamageEffectClass, GetAbilityLevel(), ContextHandle);
 	if (!DamageSpecHandle.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: Failed to create GameplayEffectSpec"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to create GameplayEffectSpec"), *GetClass()->GetName());
 		return;
 	}
 
@@ -171,7 +171,7 @@ void UGameplayAbility_MeleeAttack::StartHitTrace()
 
 	if (!TraceComponent->StartHitTrace())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: hit trace failed to start"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: hit trace failed to start"), *GetClass()->GetName());
 		StopHitTrace();
 	}
 }
@@ -197,7 +197,7 @@ void UGameplayAbility_MeleeAttack::OnTraceHit(const AActor* HitActor, const FHit
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
 	if (!SourceASC  || !DamageSpecHandle.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: missing source ASC or damage spec"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: missing source ASC or damage spec"), *GetClass()->GetName());
 		return;
 	}
 	
