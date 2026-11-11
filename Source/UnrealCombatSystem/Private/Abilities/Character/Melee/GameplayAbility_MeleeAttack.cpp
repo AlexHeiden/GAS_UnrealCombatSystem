@@ -25,7 +25,7 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	if (!AttackLightMontage)
+	if (!AttackMontage)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_AttackLight: AttackLightMontage not set"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
@@ -83,7 +83,7 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,
-		AttackLightMontage,
+		AttackMontage,
 		1.0f,
 		NAME_None,
 		false,

@@ -17,7 +17,7 @@ protected:
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TObjectPtr<UAnimMontage> AttackLightMontage;
+	TObjectPtr<UAnimMontage> AttackMontage;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	FGameplayTag OpenHitWindowTag;
