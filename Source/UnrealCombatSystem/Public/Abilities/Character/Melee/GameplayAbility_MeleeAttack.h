@@ -2,15 +2,15 @@
 
 #include "Abilities/BaseGameplayAbility.h"
 #include "Character/Components/MeleeTraceComponent.h"
-#include "GameplayAbility_AttackLight.generated.h"
+#include "GameplayAbility_MeleeAttack.generated.h"
 
 UCLASS()
-class UGameplayAbility_AttackLight: public UBaseGameplayAbility
+class UGameplayAbility_MeleeAttack: public UBaseGameplayAbility
 {
 	GENERATED_BODY()
 	
 public:
-	UGameplayAbility_AttackLight();
+	UGameplayAbility_MeleeAttack();
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")

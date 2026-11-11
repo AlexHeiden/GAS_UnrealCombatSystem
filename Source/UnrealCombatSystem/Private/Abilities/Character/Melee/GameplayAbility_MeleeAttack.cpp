@@ -1,4 +1,4 @@
-﻿#include "Abilities/Character/GameplayAbility_AttackLight.h"
+﻿#include "Abilities/Character/Melee/GameplayAbility_MeleeAttack.h"
 
 #include "GameplayEffects/ExecCalc_Damage.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
@@ -7,12 +7,12 @@
 #include "AbilitySystemGlobals.h"
 #include "Character/BaseCharacter.h"
 
-UGameplayAbility_AttackLight::UGameplayAbility_AttackLight()
+UGameplayAbility_MeleeAttack::UGameplayAbility_MeleeAttack()
 {
 	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
 }
 
-void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
+void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	const FGameplayEventData* TriggerEventData)
 {
@@ -60,7 +60,7 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	WaitHitWindowOpenTask->EventReceived.AddDynamic(this, &UGameplayAbility_AttackLight::OnHitWindowOpen);
+	WaitHitWindowOpenTask->EventReceived.AddDynamic(this, &UGameplayAbility_MeleeAttack::OnHitWindowOpen);
 	WaitHitWindowOpenTask->ReadyForActivation();
 
 	UAbilityTask_WaitGameplayEvent* WaitHitWindowCloseTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
@@ -77,7 +77,7 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	WaitHitWindowCloseTask->EventReceived.AddDynamic(this, &UGameplayAbility_AttackLight::OnHitWindowClose);
+	WaitHitWindowCloseTask->EventReceived.AddDynamic(this, &UGameplayAbility_MeleeAttack::OnHitWindowClose);
 	WaitHitWindowCloseTask->ReadyForActivation();
 	
 	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
@@ -95,15 +95,15 @@ void UGameplayAbility_AttackLight::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	MontageTask->OnCompleted.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCompleted);
-	MontageTask->OnCancelled.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCancelled);
-	MontageTask->OnInterrupted.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCancelled);
-	MontageTask->OnBlendOut.AddDynamic(this, &UGameplayAbility_AttackLight::OnMontageCompleted);
+	MontageTask->OnCompleted.AddDynamic(this, &UGameplayAbility_MeleeAttack::OnMontageCompleted);
+	MontageTask->OnCancelled.AddDynamic(this, &UGameplayAbility_MeleeAttack::OnMontageCancelled);
+	MontageTask->OnInterrupted.AddDynamic(this, &UGameplayAbility_MeleeAttack::OnMontageCancelled);
+	MontageTask->OnBlendOut.AddDynamic(this, &UGameplayAbility_MeleeAttack::OnMontageCompleted);
 
 	MontageTask->ReadyForActivation();
 }
 
-void UGameplayAbility_AttackLight::EndAbility(const FGameplayAbilitySpecHandle Handle,
+void UGameplayAbility_MeleeAttack::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
 	bool bReplicateEndAbility, bool bWasCancelled)
 {
@@ -111,27 +111,27 @@ void UGameplayAbility_AttackLight::EndAbility(const FGameplayAbilitySpecHandle H
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
-void UGameplayAbility_AttackLight::OnMontageCompleted()
+void UGameplayAbility_MeleeAttack::OnMontageCompleted()
 {
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
 }
 
-void UGameplayAbility_AttackLight::OnMontageCancelled()
+void UGameplayAbility_MeleeAttack::OnMontageCancelled()
 {
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, true);
 }
 
-void UGameplayAbility_AttackLight::OnHitWindowOpen(FGameplayEventData Payload)
+void UGameplayAbility_MeleeAttack::OnHitWindowOpen(FGameplayEventData Payload)
 {
 	StartHitTrace();
 }
 
-void UGameplayAbility_AttackLight::OnHitWindowClose(FGameplayEventData Payload)
+void UGameplayAbility_MeleeAttack::OnHitWindowClose(FGameplayEventData Payload)
 {
 	StopHitTrace();
 }
 
-void UGameplayAbility_AttackLight::StartHitTrace()
+void UGameplayAbility_MeleeAttack::StartHitTrace()
 {
 	StopHitTrace();
 
@@ -167,7 +167,7 @@ void UGameplayAbility_AttackLight::StartHitTrace()
 	}
 
 	ActiveTrace = TraceComponent;
-	TraceComponent->OnTraceHit.AddDynamic(this, &UGameplayAbility_AttackLight::OnTraceHit);
+	TraceComponent->OnTraceHit.AddDynamic(this, &UGameplayAbility_MeleeAttack::OnTraceHit);
 
 	if (!TraceComponent->StartHitTrace())
 	{
@@ -176,18 +176,18 @@ void UGameplayAbility_AttackLight::StartHitTrace()
 	}
 }
 
-void UGameplayAbility_AttackLight::StopHitTrace()
+void UGameplayAbility_MeleeAttack::StopHitTrace()
 {
 	if (UMeleeTraceComponent* TraceComponent = ActiveTrace.Get())
 	{
 		TraceComponent->StopHitTrace();
-		TraceComponent->OnTraceHit.RemoveDynamic(this, &UGameplayAbility_AttackLight::OnTraceHit);
+		TraceComponent->OnTraceHit.RemoveDynamic(this, &UGameplayAbility_MeleeAttack::OnTraceHit);
 	}
 	ActiveTrace.Reset();
 	DamageSpecHandle.Clear();
 }
 
-void UGameplayAbility_AttackLight::OnTraceHit(const AActor* HitActor, const FHitResult& HitResult)
+void UGameplayAbility_MeleeAttack::OnTraceHit(const AActor* HitActor, const FHitResult& HitResult)
 {
 	if (!HasAuthority(&CurrentActivationInfo))
 	{
