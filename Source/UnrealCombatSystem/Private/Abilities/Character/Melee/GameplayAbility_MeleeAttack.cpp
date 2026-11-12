@@ -25,9 +25,16 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
+	if (!HitSourceTag.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: HitSourceTag is not set"), *GetClass()->GetName());
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+
 	if (!AttackMontage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s: AttackLightMontage not set"), *GetClass()->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("%s: AttackMontage not set"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -149,10 +156,11 @@ void UGameplayAbility_MeleeAttack::StartHitTrace()
 		return;
 	}
 
-	UMeleeTraceComponent* TraceComponent = BaseCharacter->GetRightFistTraceComponent();
+	//TODO: iterate over multiple hit source tags for possibility of multiple weapons' attack
+	UMeleeTraceComponent* TraceComponent = BaseCharacter->FindMeleeTraceComponent(HitSourceTag);
 	if (!TraceComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to retrieve RightFistTrace MeleeComponent from source"), *GetClass()->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to retrieve MeleeTraceComponent from source"), *GetClass()->GetName());
 		return;
 	}
 	

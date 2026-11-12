@@ -11,9 +11,15 @@ ABaseCharacter::ABaseCharacter()
 	HealthAttributeSet = CreateDefaultSubobject<UHealthAttributeSet>(TEXT("HealthAttributeSet"));
 	StaminaAttributeSet = CreateDefaultSubobject<UStaminaAttributeSet>(TEXT("StaminaAttributeSet"));
 	AttackAttributeSet = CreateDefaultSubobject<UAttackAttributeSet>(TEXT("AttackAttributeSet"));
-
+	
 	RightFistTraceComponent = CreateDefaultSubobject<UMeleeTraceComponent>(TEXT("RightFistTraceComponent"));
-	RightFistTraceComponent->SetTraceMesh(GetMesh());
+	LeftFistTraceComponent = CreateDefaultSubobject<UMeleeTraceComponent>(TEXT("LeftFistTraceComponent"));
+	TArray<UMeleeTraceComponent*> TraceComponents;
+	GetComponents<UMeleeTraceComponent>(TraceComponents);
+	for (UMeleeTraceComponent* MeleeTraceComponent : TraceComponents)
+	{
+		MeleeTraceComponent->SetTraceMesh(GetMesh());
+	}
 }
 
 UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
@@ -56,9 +62,25 @@ void ABaseCharacter::AbilityInputTagReleased(FGameplayTag InputTag)
 	
 }
 
-UMeleeTraceComponent* ABaseCharacter::GetRightFistTraceComponent() const
+UMeleeTraceComponent* ABaseCharacter::FindMeleeTraceComponent(const FGameplayTag SourceTag) const
 {
-	return RightFistTraceComponent;
+	if (!SourceTag.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s: Invalid SourceTag provided to FindMeleeTraceComponent"), *GetClass()->GetName());
+		return nullptr;	
+	}
+	
+	TArray<UMeleeTraceComponent*> MeleeTraceComponents;
+	GetComponents<UMeleeTraceComponent>(MeleeTraceComponents);
+	for (UMeleeTraceComponent* MeleeTraceComponent : MeleeTraceComponents)
+	{
+		if (MeleeTraceComponent && SourceTag.MatchesTagExact(MeleeTraceComponent->SourceTag))
+		{
+			return MeleeTraceComponent;
+		}
+	}
+	
+	return nullptr;
 }
 
 void ABaseCharacter::GiveDefaultAbilities()

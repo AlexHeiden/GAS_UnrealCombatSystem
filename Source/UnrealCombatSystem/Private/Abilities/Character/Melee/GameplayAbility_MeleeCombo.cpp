@@ -8,13 +8,6 @@ void UGameplayAbility_MeleeCombo::ActivateAbility(const FGameplayAbilitySpecHand
                                                   const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                   const FGameplayEventData* TriggerEventData)
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-
-	if (!IsActive())
-	{
-		return;
-	}
-
 	if (!OpenCancelWindowTag.IsValid() || !CloseCancelWindowTag.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s: OpenCancelWindowTag or CloseCancelWindowTag is not set"), *GetClass()->GetName());
@@ -26,6 +19,13 @@ void UGameplayAbility_MeleeCombo::ActivateAbility(const FGameplayAbilitySpecHand
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s: StateOpenCancelWindowTag is not set"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
+	
+	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (!IsActive())
+	{
 		return;
 	}
 
@@ -53,7 +53,7 @@ void UGameplayAbility_MeleeCombo::ActivateAbility(const FGameplayAbilitySpecHand
 		false,
 		false
 	);
-	if (!WaitCancelWindowOpenTask)
+	if (!WaitCancelWindowCloseTask)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s: WaitCancelWindowCloseTask failed to be created"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);

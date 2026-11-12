@@ -25,15 +25,15 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayEffect>> DefaultEffects;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Abilities")
 	TMap<FGameplayTag, FGameplayTag> InputTagToAbilityTag;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UMeleeTraceComponent> RightFistTraceComponent;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TObjectPtr<UMeleeTraceComponent> LeftFistTraceComponent;
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void PossessedBy(AController* NewController) override;
@@ -41,7 +41,7 @@ public:
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 
-	UMeleeTraceComponent* GetRightFistTraceComponent() const;
+	UMeleeTraceComponent* FindMeleeTraceComponent(FGameplayTag SourceTag) const;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abilities")

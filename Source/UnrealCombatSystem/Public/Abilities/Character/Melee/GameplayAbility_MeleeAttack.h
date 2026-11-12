@@ -13,15 +13,15 @@ public:
 	UGameplayAbility_MeleeAttack();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	FGameplayTag HitSourceTag;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TObjectPtr<UAnimMontage> AttackMontage;
-	
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	FGameplayTag OpenHitWindowTag;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	FGameplayTag CloseHitWindowTag; 
 	

@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "GameplayTagContainer.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "MeleeTraceComponent.generated.h"
 
@@ -10,6 +11,8 @@ class UMeleeTraceComponent: public UActorComponent
 public:
 	UMeleeTraceComponent();
 
+	UPROPERTY(EditAnywhere, Category="Trace")
+	FGameplayTag SourceTag;
 	UPROPERTY(EditAnywhere, Category="Trace")
 	FName StartSocket;
 	UPROPERTY(EditAnywhere, Category="Trace")
