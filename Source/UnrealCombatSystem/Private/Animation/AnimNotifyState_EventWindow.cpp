@@ -1,5 +1,6 @@
 ﻿#include "Animation/AnimNotifyState_EventWindow.h"
 
+#include "Data/CombatTags.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Abilities/GameplayAbilityTypes.h"
 

@@ -1,5 +1,6 @@
 ﻿#include "Abilities/Character/GameplayAbility_Dodge.h"
 
+#include "Data/CombatTags.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "AttributeSets/StaminaAttributeSet.h"
@@ -33,20 +34,6 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		return;
 	}
 
-	if (!OpenIFramesTag.IsValid() || !CloseIFramesTag.IsValid())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: OpenIFramesTag or CloseIFramesTag is not set"));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
-	if (!InvulnerabilityTag.IsValid())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: InvulnerabilityTag is not set"));
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
 	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
 	if (!Character)
 	{
@@ -70,7 +57,7 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 
 	UAbilityTask_WaitGameplayEvent* WaitIFramesOpenWindowTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
-		OpenIFramesTag,
+		TAG_Event_IFrames_Open,
 		nullptr,
 		false,
 		false);
@@ -86,7 +73,7 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 
 	UAbilityTask_WaitGameplayEvent* WaitIframesCloseWindowTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
-		CloseIFramesTag,
+		TAG_Event_IFrames_Close,
 		nullptr,
 		false,
 		false);
@@ -136,7 +123,7 @@ void UGameplayAbility_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
 		}
 		else
 		{
-			SourceASC->RemoveLooseGameplayTag(InvulnerabilityTag);
+			SourceASC->RemoveLooseGameplayTag(TAG_State_Invulnerability);
 			bIsInvulnerable = false;
 		}
 	}
@@ -158,7 +145,7 @@ void UGameplayAbility_Dodge::OnIFramesOpen(FGameplayEventData Payload)
 		return;
 	}
 
-	SourceASC->AddLooseGameplayTag(InvulnerabilityTag);
+	SourceASC->AddLooseGameplayTag(TAG_State_Invulnerability);
 	bIsInvulnerable = true;
 }
 
@@ -176,6 +163,6 @@ void UGameplayAbility_Dodge::OnIFramesClose(FGameplayEventData Payload)
 		return;
 	}
 
-	SourceASC->RemoveLooseGameplayTag(InvulnerabilityTag);
+	SourceASC->RemoveLooseGameplayTag(TAG_State_Invulnerability);
 	bIsInvulnerable = false;
 }

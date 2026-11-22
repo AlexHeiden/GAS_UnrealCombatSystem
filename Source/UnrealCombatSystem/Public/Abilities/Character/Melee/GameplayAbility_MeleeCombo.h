@@ -8,15 +8,6 @@ class UGameplayAbility_MeleeCombo: public UGameplayAbility_MeleeAttack
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	FGameplayTag OpenCancelWindowTag;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	FGameplayTag CloseCancelWindowTag;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	FGameplayTag StateOpenCancelWindowTag;
-
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		const FGameplayAbilityActorInfo* ActorInfo,
 		const FGameplayAbilityActivationInfo ActivationInfo,

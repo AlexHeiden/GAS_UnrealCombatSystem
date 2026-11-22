@@ -13,15 +13,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TObjectPtr<UAnimMontage> DodgeMontage;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	FGameplayTag OpenIFramesTag;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	FGameplayTag CloseIFramesTag; 
-
-	UPROPERTY(EditDefaultsOnly, Category = "Effects")
-	FGameplayTag InvulnerabilityTag;
-
 	UFUNCTION()
 	void OnMontageCompleted();
 	UFUNCTION()

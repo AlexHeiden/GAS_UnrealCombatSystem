@@ -1,5 +1,6 @@
 ﻿#include "Abilities/Character/Melee/GameplayAbility_MeleeCombo.h"
 
+#include "Data/CombatTags.h"
 #include "AbilitySystemComponent.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 
@@ -8,20 +9,6 @@ void UGameplayAbility_MeleeCombo::ActivateAbility(const FGameplayAbilitySpecHand
                                                   const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                                   const FGameplayEventData* TriggerEventData)
 {
-	if (!OpenCancelWindowTag.IsValid() || !CloseCancelWindowTag.IsValid())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s: OpenCancelWindowTag or CloseCancelWindowTag is not set"), *GetClass()->GetName());
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
-	if (!StateOpenCancelWindowTag.IsValid())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s: StateOpenCancelWindowTag is not set"), *GetClass()->GetName());
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
 	if (!IsActive())
@@ -31,7 +18,7 @@ void UGameplayAbility_MeleeCombo::ActivateAbility(const FGameplayAbilitySpecHand
 
 	UAbilityTask_WaitGameplayEvent* WaitCancelWindowOpenTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
-		OpenCancelWindowTag,
+		TAG_Event_CancelWindow_Open,
 		nullptr,
 		false,
 		false
@@ -48,7 +35,7 @@ void UGameplayAbility_MeleeCombo::ActivateAbility(const FGameplayAbilitySpecHand
 
 	UAbilityTask_WaitGameplayEvent* WaitCancelWindowCloseTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
-		CloseCancelWindowTag,
+		TAG_Event_CancelWindow_Close,
 		nullptr,
 		false,
 		false
@@ -77,7 +64,7 @@ void UGameplayAbility_MeleeCombo::EndAbility(const FGameplayAbilitySpecHandle Ha
 		}
 		else
 		{
-			SourceASC->RemoveLooseGameplayTag(StateOpenCancelWindowTag);
+			SourceASC->RemoveLooseGameplayTag(TAG_State_CancelWindow_Open);
 			bIsCancelWindowOpen = false;
 		}
 	}
@@ -99,7 +86,7 @@ void UGameplayAbility_MeleeCombo::OnCancelWindowOpen(FGameplayEventData Payload)
 		return;
 	}
 
-	SourceASC->AddLooseGameplayTag(StateOpenCancelWindowTag);
+	SourceASC->AddLooseGameplayTag(TAG_State_CancelWindow_Open);
 	bIsCancelWindowOpen = true;
 }
 
@@ -117,6 +104,6 @@ void UGameplayAbility_MeleeCombo::OnCancelWindowClose(FGameplayEventData Payload
 		return;
 	}
 
-	SourceASC->RemoveLooseGameplayTag(StateOpenCancelWindowTag);
+	SourceASC->RemoveLooseGameplayTag(TAG_State_CancelWindow_Open);
 	bIsCancelWindowOpen = false;
 }

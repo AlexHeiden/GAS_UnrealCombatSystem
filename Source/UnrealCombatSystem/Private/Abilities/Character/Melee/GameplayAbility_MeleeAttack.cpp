@@ -1,5 +1,6 @@
 ﻿#include "Abilities/Character/Melee/GameplayAbility_MeleeAttack.h"
 
+#include "Data/CombatTags.h"
 #include "GameplayEffects/ExecCalc_Damage.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
@@ -38,13 +39,6 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
-
-	if (!OpenHitWindowTag.IsValid() || !CloseHitWindowTag.IsValid())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s: OpenHitWindowTag or CloseHitWindowTag is not set"), *GetClass()->GetName());
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
 	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
@@ -55,7 +49,7 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 
 	UAbilityTask_WaitGameplayEvent* WaitHitWindowOpenTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
-		OpenHitWindowTag,
+		TAG_Event_HitWindow_Open,
 		nullptr,
 		false,
 		false
@@ -72,7 +66,7 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 
 	UAbilityTask_WaitGameplayEvent* WaitHitWindowCloseTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
 		this,
-		CloseHitWindowTag,
+		TAG_Event_HitWindow_Close,
 		nullptr,
 		false,
 		false

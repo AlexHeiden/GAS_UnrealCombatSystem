@@ -1,0 +1,15 @@
+﻿#pragma once
+#include "NativeGameplayTags.h"
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_Invulnerability);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_State_CancelWindow_Open);
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_HitWindow_Open);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_HitWindow_Close);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_CancelWindow_Open);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_CancelWindow_Close);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_IFrames_Open);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Event_IFrames_Close);
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Data_Damage_Multiplier);
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Data_Cost_Stamina);

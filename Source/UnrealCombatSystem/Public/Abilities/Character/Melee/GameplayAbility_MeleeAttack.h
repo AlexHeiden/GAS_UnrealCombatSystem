@@ -20,10 +20,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	TObjectPtr<UAnimMontage> AttackMontage;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	FGameplayTag OpenHitWindowTag;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	FGameplayTag CloseHitWindowTag; 
 	
 	UFUNCTION()
 	void OnMontageCompleted();
