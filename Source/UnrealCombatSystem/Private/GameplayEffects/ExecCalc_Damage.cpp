@@ -2,6 +2,7 @@
 
 #include "AttributeSets/AttackAttributeSet.h"
 #include "AttributeSets/HealthAttributeSet.h"
+#include "Data/CombatTags.h"
 
 UExecCalc_Damage::UExecCalc_Damage()
 {
@@ -41,7 +42,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		UE_LOG(LogTemp, Warning, TEXT("ExecCalc_Damage: Failed to capture Defense from target"));
 	}
 
-	float Damage = FMath::Max(AttackPower - Defense, 0.0f);
+	const float Multiplier = Spec.GetSetByCallerMagnitude(TAG_Data_Damage_Multiplier, false, 1.f);
+	float Damage = FMath::Max(AttackPower * Multiplier - Defense, 0.0f);
 	
 	OutExecutionOutput.AddOutputModifier(
 		FGameplayModifierEvaluatedData(

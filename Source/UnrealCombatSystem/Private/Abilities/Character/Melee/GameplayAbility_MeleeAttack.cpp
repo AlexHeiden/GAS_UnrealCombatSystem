@@ -105,6 +105,37 @@ void UGameplayAbility_MeleeAttack::EndAbility(const FGameplayAbilitySpecHandle H
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
 
+bool UGameplayAbility_MeleeAttack::CheckCost(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!AttackData || !ActorInfo || !ActorInfo->AbilitySystemComponent.IsValid())
+	{
+		return false;
+	}
+
+	const UStaminaAttributeSet* Stamina = ActorInfo->AbilitySystemComponent->GetSet<UStaminaAttributeSet>();
+	return Stamina && Stamina->GetStamina() >= AttackData->StaminaCost;
+}
+
+void UGameplayAbility_MeleeAttack::ApplyCost(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (!CostGameplayEffectClass || !AttackData)
+	{
+		return;
+	}
+
+	FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(
+		Handle, ActorInfo, ActivationInfo, CostGameplayEffectClass, GetAbilityLevel(Handle, ActorInfo));
+	if (!Spec.IsValid())
+	{
+		return;
+	}
+	
+	Spec.Data->SetSetByCallerMagnitude(TAG_Data_Cost_Stamina, -AttackData->StaminaCost);
+	ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, Spec);
+}
+
 void UGameplayAbility_MeleeAttack::OnMontageCompleted()
 {
 	EndAbility(GetCurrentAbilitySpecHandle(), GetCurrentActorInfo(), GetCurrentActivationInfo(), true, false);
@@ -160,6 +191,8 @@ void UGameplayAbility_MeleeAttack::StartHitTrace()
 		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to create GameplayEffectSpec"), *GetClass()->GetName());
 		return;
 	}
+
+	DamageSpecHandle.Data->SetSetByCallerMagnitude(TAG_Data_Damage_Multiplier, AttackData->DamageMultiplier);
 
 	ActiveTrace = TraceComponent;
 	TraceComponent->OnTraceHit.AddDynamic(this, &UGameplayAbility_MeleeAttack::OnTraceHit);
