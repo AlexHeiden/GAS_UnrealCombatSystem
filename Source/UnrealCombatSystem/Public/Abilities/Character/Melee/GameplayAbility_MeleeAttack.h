@@ -2,6 +2,7 @@
 
 #include "Abilities/BaseGameplayAbility.h"
 #include "Character/Components/MeleeTraceComponent.h"
+#include "Data/AttackDataAsset.h"
 #include "GameplayAbility_MeleeAttack.generated.h"
 
 UCLASS()
@@ -13,13 +14,11 @@ public:
 	UGameplayAbility_MeleeAttack();
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	TObjectPtr<UAttackDataAsset> AttackData;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Combat")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Combat")
-	FGameplayTag HitSourceTag;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Animation")
-	TObjectPtr<UAnimMontage> AttackMontage;
 	
 	UFUNCTION()
 	void OnMontageCompleted();

@@ -26,16 +26,9 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 		return;
 	}
 
-	if (!HitSourceTag.IsValid())
+	if (!AttackData || !AttackData->Montage || !AttackData->HitSourceTag.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s: HitSourceTag is not set"), *GetClass()->GetName());
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-
-	if (!AttackMontage)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s: AttackMontage not set"), *GetClass()->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("%s: AttackData is invalid"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -84,7 +77,7 @@ void UGameplayAbility_MeleeAttack::ActivateAbility(const FGameplayAbilitySpecHan
 	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,
-		AttackMontage,
+		AttackData->Montage,
 		1.0f,
 		NAME_None,
 		false,
@@ -151,7 +144,7 @@ void UGameplayAbility_MeleeAttack::StartHitTrace()
 	}
 
 	//TODO: iterate over multiple hit source tags for possibility of multiple weapons' attack
-	UMeleeTraceComponent* TraceComponent = BaseCharacter->FindMeleeTraceComponent(HitSourceTag);
+	UMeleeTraceComponent* TraceComponent = BaseCharacter->FindMeleeTraceComponent(AttackData->HitSourceTag);
 	if (!TraceComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to retrieve MeleeTraceComponent from source"), *GetClass()->GetName());
