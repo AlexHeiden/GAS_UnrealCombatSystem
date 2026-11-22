@@ -27,9 +27,9 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	if (!DodgeMontage)
+	if (!DodgeData || !DodgeData->Montage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: DodgeMontage not set"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: DodgeData is invalid"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -37,14 +37,14 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	ACharacter* Character = Cast<ACharacter>(GetAvatarActorFromActorInfo());
 	if (!Character)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: Failed to retrieve Character from ActorInfo"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to retrieve Character from ActorInfo"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: Failed to commit ability"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to commit ability"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -63,7 +63,7 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		false);
 	if (!WaitIFramesOpenWindowTask)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: WaitIFramesOpenWindowTask failed to be created"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: WaitIFramesOpenWindowTask failed to be created"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -79,7 +79,7 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 		false);
 	if (!WaitIframesCloseWindowTask)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: WaitIFramesCloseWindowTask failed to be created"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: WaitIFramesCloseWindowTask failed to be created"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -90,14 +90,14 @@ void UGameplayAbility_Dodge::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	UAbilityTask_PlayMontageAndWait* MontageTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 		this,
 		NAME_None,
-		DodgeMontage,
+		DodgeData->Montage,
 		1.f,
 		NAME_None,
 		false,
 		1.0f);
 	if (!MontageTask)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: MontageTask failed to be created"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: MontageTask failed to be created"), *GetClass()->GetName());
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
@@ -119,7 +119,7 @@ void UGameplayAbility_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
 		UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
 		if (!SourceASC)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: Failed to retrieve ASC from source"));
+			UE_LOG(LogTemp, Warning, TEXT("%s: Failed to retrieve ASC from source"), *GetClass()->GetName());
 		}
 		else
 		{
@@ -129,6 +129,37 @@ void UGameplayAbility_Dodge::EndAbility(const FGameplayAbilitySpecHandle Handle,
 	}
 	
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+bool UGameplayAbility_Dodge::CheckCost(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, FGameplayTagContainer* OptionalRelevantTags) const
+{
+	if (!DodgeData || !ActorInfo || !ActorInfo->AbilitySystemComponent.IsValid())
+	{
+		return false;
+	}
+
+	const UStaminaAttributeSet* Stamina = ActorInfo->AbilitySystemComponent->GetSet<UStaminaAttributeSet>();
+	return Stamina && Stamina->GetStamina() >= DodgeData->StaminaCost;
+}
+
+void UGameplayAbility_Dodge::ApplyCost(const FGameplayAbilitySpecHandle Handle,
+	const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	if (!CostGameplayEffectClass || !DodgeData)
+	{
+		return;
+	}
+
+	FGameplayEffectSpecHandle Spec = MakeOutgoingGameplayEffectSpec(
+		Handle, ActorInfo, ActivationInfo, CostGameplayEffectClass, GetAbilityLevel(Handle, ActorInfo));
+	if (!Spec.IsValid())
+	{
+		return;
+	}
+	
+	Spec.Data->SetSetByCallerMagnitude(TAG_Data_Cost_Stamina, -DodgeData->StaminaCost);
+	ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, Spec);
 }
 
 void UGameplayAbility_Dodge::OnIFramesOpen(FGameplayEventData Payload)
@@ -141,7 +172,7 @@ void UGameplayAbility_Dodge::OnIFramesOpen(FGameplayEventData Payload)
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
 	if (!SourceASC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: Failed to retrieve ASC from source"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to retrieve ASC from source"), *GetClass()->GetName());
 		return;
 	}
 
@@ -159,7 +190,7 @@ void UGameplayAbility_Dodge::OnIFramesClose(FGameplayEventData Payload)
 	UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo();
 	if (!SourceASC)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GameplayAbility_Dodge: Failed to retrieve ASC from source"));
+		UE_LOG(LogTemp, Warning, TEXT("%s: Failed to retrieve ASC from source"), *GetClass()->GetName());
 		return;
 	}
 
